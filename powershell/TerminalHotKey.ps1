@@ -1,17 +1,19 @@
 <#
 Run with admin privileges 
 
-Win + C opens a terminal on Desktop directory 
-Win + Shift + C opens a terminal with admin privileges on Desktop directory 
+This powershell script adds the following hot keys to your Windows machine --> 
+
+Win + C - opens a terminal on Desktop directory 
+Win + Shift + C - opens a terminal with admin privileges on Desktop directory 
 #>
+
 Add-Type -TypeDefinition @"
 using System;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using System.IO;
 
-public class HotKeyForm : Form
+public class HotKeyManager : Form
 {
     [DllImport("user32.dll")]
     public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
@@ -23,46 +25,35 @@ public class HotKeyForm : Form
     private const int MOD_WIN = 0x0008;
     private const int MOD_SHIFT = 0x0004;
     
-    private int id_win_c = 1;
-    private int id_win_shift_c = 2;
-    private string desktopPath;
+    private const int ID_WIN_C = 1;
+    private const int ID_WIN_SHIFT_C = 2;
+    private readonly string _desktopPath;
     
-    public HotKeyForm()
+    public HotKeyManager()
     {
-        this.desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        this.RegisterHotKeys();
-        this.InitializeForm();
-    }
-    
-    private void InitializeForm()
-    {
+        _desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        
+        // Minimize form footprint
         this.WindowState = FormWindowState.Minimized;
         this.ShowInTaskbar = false;
         this.FormBorderStyle = FormBorderStyle.None;
-        this.Size = new System.Drawing.Size(0, 0);
-    }
-    
-    private void RegisterHotKeys()
-    {
-        if (!RegisterHotKey(this.Handle, id_win_c, MOD_WIN, (int)Keys.C))
-            MessageBox.Show("Failed to register Win+C");
-        if (!RegisterHotKey(this.Handle, id_win_shift_c, MOD_WIN | MOD_SHIFT, (int)Keys.C))
-            MessageBox.Show("Failed to register Win+Shift+C");
+        this.Opacity = 0;
+        this.Size = new System.Drawing.Size(1, 1);
+        
+        // Register hotkeys
+        if (!RegisterHotKey(this.Handle, ID_WIN_C, MOD_WIN, (int)Keys.C))
+            Console.WriteLine("Failed to register Win+C");
+        
+        if (!RegisterHotKey(this.Handle, ID_WIN_SHIFT_C, MOD_WIN | MOD_SHIFT, (int)Keys.C))
+            Console.WriteLine("Failed to register Win+Shift+C");
     }
     
     protected override void WndProc(ref Message m)
     {
         if (m.Msg == WM_HOTKEY)
         {
-            switch (m.WParam.ToInt32())
-            {
-                case 1:
-                    LaunchTerminal(false);
-                    break;
-                case 2:
-                    LaunchTerminal(true);
-                    break;
-            }
+            bool isAdmin = m.WParam.ToInt32() == ID_WIN_SHIFT_C;
+            LaunchTerminal(isAdmin);
         }
         base.WndProc(ref m);
     }
@@ -74,7 +65,7 @@ public class HotKeyForm : Form
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = "wt.exe",
-                Arguments = $"-d \"{desktopPath}\"",
+                Arguments = $"-d \"{_desktopPath}\"",
                 UseShellExecute = true
             };
             
@@ -84,20 +75,19 @@ public class HotKeyForm : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error launching terminal: {ex.Message}");
+            Console.WriteLine($"Error launching terminal: {ex.Message}");
         }
     }
     
     protected override void Dispose(bool disposing)
     {
-        UnregisterHotKey(this.Handle, id_win_c);
-        UnregisterHotKey(this.Handle, id_win_shift_c);
+        UnregisterHotKey(this.Handle, ID_WIN_C);
+        UnregisterHotKey(this.Handle, ID_WIN_SHIFT_C);
         base.Dispose(disposing);
     }
 }
 "@ -ReferencedAssemblies "System.Windows.Forms"
 
 # Create and run the form
-Add-Type -AssemblyName System.Windows.Forms
-$form = New-Object HotKeyForm
+$form = New-Object HotKeyManager
 [System.Windows.Forms.Application]::Run($form)
