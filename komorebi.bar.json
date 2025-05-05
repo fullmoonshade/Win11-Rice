@@ -1,0 +1,13 @@
+{
+  "left_widgets": [
+    { "Komorebi": { "workspaces": { "enable": false }, "layout": { "enable": false }, "focused_window": { "enable": false, "show_icon": false } } }
+  ],
+  "right_widgets": [
+    { "Media": { "enable": false } },
+    { "Storage": { "enable": false } },
+    { "Memory": { "enable": false } },
+    { "Network": { "enable": false, "show_total_data_transmitted": false, "show_network_activity": false } },
+    { "Date": { "enable": false, "format": "DayDateMonthYear" } },
+    { "Time": { "enable": false, "format": "TwentyFourHour" } }
+  ]
+}
