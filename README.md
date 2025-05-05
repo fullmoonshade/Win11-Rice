@@ -1,21 +1,16 @@
 # Win11-Rice
 
-All software used is **free**:
+All software/plugins used is **free**:
 
 - **Flow Launcher**  
   Powerful and lightweight launcher for Windows.
 
-- **StartAllBack**  
-  Restores the classic Start menu and taskbar.
-
 - **TickTick**  
   Task manager and to-do list app.
 
----
+- **Komorebi**
+  A tiling manager for windows
 
-## Scripts
+- **Wezterm**
+  A Terminal Emulator
 
-- **TerminalHotKeys.ps1**  
-  Adds the following hotkeys to open the terminal:
-  - `Win + C`
-  - `Win + Shift + C` (with admin privileges)
